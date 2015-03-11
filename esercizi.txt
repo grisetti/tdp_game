@@ -1,0 +1,9 @@
+1) modificare il comportamento dell'agente in modo che risenta della gravita'
+   -- calcola forza risultante tra vettore di gravita', vettore di "propulsione"
+   lungo il piano xy e vettore normale alla superficie.
+
+2) aggiungere gli ostacoli (leggerli da file in una lista/array e passarli all'oggetto mondo)
+
+3) aggiungere i premi (leggerli da file in una lista/array e passarli all'oggetto mondo), e fare la funzione che modella il comportamento dell'agente quando trova un premio (il premio viene staccato dalla lista del mondo ed inserito nella lista dell'agente).
+
+
