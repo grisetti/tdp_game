@@ -69,29 +69,27 @@ void displayWorld(World* w) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
+  gluPerspective( /* field of view in degree */ 70.0,
+		  /* aspect ratio */ (float)w->window_width/(float)w->window_height,
+		  /* Z near */ 0.5, /* Z far */ 100.0);
+
+  float camera_distance = 1./w->zoom;
   switch (w->view_type) {
   case LOCAL_OUT_VEHICLE:
-    gluPerspective( /* field of view in degree */ 70.0,
-		    /* aspect ratio */ (float)w->window_width/(float)w->window_height,
-		    /* Z near */ 0.5, /* Z far */ 20.0);
-    gluLookAt(-1,0,w->camera_z,
+    gluLookAt(-camera_distance,0,w->camera_z*camera_distance,
 	      0,0,0,
 	      0,0,1);
-
+    glRotatef(-w->vehicle.theta*180.0/M_PI, 0, 0, 1);
+    glTranslatef(-w->vehicle.x, -w->vehicle.y, -w->vehicle.z);
     break;
   case LOCAL_IN_VEHICLE:
-    gluPerspective( /* field of view in degree */ 70.0,
-		    /* aspect ratio */ (float)w->window_width/(float)w->window_height,
-		    /* Z near */ 0.5, /* Z far */ 20.0);
-    gluLookAt(-1,0,w->camera_z,
+    gluLookAt(-camera_distance,0,w->camera_z*camera_distance,
 	      0,0,0,
 	      0,0,1);
+    glMultMatrixf(w->vehicle.world_to_camera);
     break;
   case GLOBAL:
     glLoadIdentity();
-    gluPerspective( /* field of view in degree */ 70.0,
-		    /* aspect ratio */ (float)w->window_width/(float)w->window_height,
-		    /* Z near */ 0.1, /* Z far */ 100.0);
     gluLookAt(.5*w->ground.rows*w->ground.row_scale,
 	      .5*w->ground.cols*w->ground.col_scale,
 	      w->camera_z*10,
@@ -102,24 +100,8 @@ void displayWorld(World* w) {
     break;
   }
   glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glScalef(w->zoom,w->zoom,w->zoom);
-
-  switch (w->view_type) {
-  case LOCAL_OUT_VEHICLE:
-    glRotatef(-w->vehicle.theta*180.0/M_PI, 0, 0, 1);
-    glTranslatef(-w->vehicle.x, -w->vehicle.y, -w->vehicle.z);
-    break;
-  case LOCAL_IN_VEHICLE:
-    glMultMatrixf(w->vehicle.world_to_camera);
-    break;
-  case GLOBAL:
-    glLoadIdentity();
-    break;
-  }
   drawSurface(&w->ground);
   drawVehicle(&w->vehicle);
-  glPopMatrix();
   glutSwapBuffers();
 }
 
@@ -137,7 +119,6 @@ void updateWorld(World* w) {
 }
 
 void reshapeWorldViewport(World* w, int width, int height){
-  printf("reshaping,  width: %d, height: %d\n", width, height);
   w->window_width  = width;
   w->window_height = height;
   glViewport(0, 0, width, height);

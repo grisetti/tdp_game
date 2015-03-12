@@ -72,7 +72,7 @@ Image* loadImage(const char* filename) {
     printf("read");
   } while(line[0]=='#');
 
-  sscanf(line, "%d %d\n", &rows, &cols);
+  sscanf(line, "%d %d\n", &cols, &rows);
   printf("rows:%d, cols: %d\n", rows, cols);
   printf("magic number: [%s]\n", magic_number);
 
