@@ -15,6 +15,7 @@
 int window;
 World world;
 
+float tf=0, rf=0;
 void keyPressed(unsigned char key, int x, int y)
 {
   switch(key){
@@ -22,8 +23,8 @@ void keyPressed(unsigned char key, int x, int y)
     glutDestroyWindow(window);
     exit(0);
   case ' ':
-    world.translational_force *= 0.1;
-    world.rotational_force *= 0.1;
+    tf = 0;
+    rf = 0;
     break;
   case '+':
     world.zoom *= 1.1f;
@@ -47,32 +48,22 @@ void keyPressed(unsigned char key, int x, int y)
 void specialInput(int key, int x, int y) {
   switch(key){
   case GLUT_KEY_UP:
-    world.translational_force += world.translational_force_increment;
-    if(world.translational_force > world.max_translational_force)
-      world.translational_force = world.max_translational_force;
+    tf += 0.1;
     break;
   case GLUT_KEY_DOWN:
-    world.translational_force -= world.translational_force_increment;
-    if(world.translational_force < -world.max_translational_force)
-      world.translational_force = -world.max_translational_force;
+    tf -= 0.1;
     break;
   case GLUT_KEY_LEFT:
-    world.rotational_force += world.rotational_force_increment;
-    if(world.rotational_force > world.max_rotational_force)
-      world.rotational_force = world.max_rotational_force;
+    rf += 0.1;
     break;
-   case GLUT_KEY_RIGHT:
-    world.rotational_force -= world.rotational_force_increment;
-    if(world.rotational_force < -world.max_rotational_force)
-      world.rotational_force = -world.max_rotational_force;
+  case GLUT_KEY_RIGHT:
+    rf -= 0.1;
     break;
   case GLUT_KEY_PAGE_UP:
-    printf("camera_z: %lf\n", world.camera_z);
     world.camera_z+=0.1;
     break;
   case GLUT_KEY_PAGE_DOWN:
     world.camera_z-=0.1;
-    printf("camera_z: %lf\n", world.camera_z);
     break;
   }
 }
@@ -88,9 +79,13 @@ void reshape(int width, int height) {
 }
 
 void idle() {
-  updateWorld(&world);
+  updateWorld(&world, tf, rf);
   glutPostRedisplay();
   usleep(10000);
+  
+  // decay the commands
+  tf *= 0.999;
+  rf *= 0.7;
 }
 
 int main(int argc, char **argv) {

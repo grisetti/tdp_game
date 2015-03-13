@@ -15,6 +15,9 @@ typedef struct Vehicle {
   float camera_to_world[16];
   float mass, angular_mass;
   int gl_texture;
+  float rotational_force, max_rotational_force, min_rotational_force;
+  float translational_force, max_translational_force, min_translational_force;
+
 } Vehicle;
 
 void vehicleInit(Vehicle* v, Surface* s);

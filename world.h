@@ -11,8 +11,6 @@ typedef enum WorldViewType {LOCAL_IN_VEHICLE, LOCAL_OUT_VEHICLE, GLOBAL} WorldVi
 typedef struct World {
   Surface ground;
   Vehicle vehicle;
-  float rotational_force, max_rotational_force, rotational_force_increment;
-  float translational_force, max_translational_force, translational_force_increment;
   float dt;
   float zoom;
   float camera_z;
@@ -36,7 +34,7 @@ void reshapeWorldViewport(World* w, int width, int height);
 
 void displayWorld(World* w);
 
-void updateWorld(World* w);
+void updateWorld(World* w, float tf, float rf);
 
 #endif
 

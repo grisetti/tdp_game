@@ -35,10 +35,6 @@ int initWorld(World* w,
   freeImage(float_image);
 
   vehicleInit(&w->vehicle, &w->ground);
-  w->max_rotational_force=0.5;
-  w->max_translational_force=10;
-  w->translational_force_increment = 0.1;
-  w->rotational_force_increment = 0.1;
   w->zoom = 1;
   w->dt = 1;
   w->camera_z = 1;
@@ -105,14 +101,14 @@ void displayWorld(World* w) {
   glutSwapBuffers();
 }
 
-void updateWorld(World* w) {
+void updateWorld(World* w, float tf, float rf) {
   struct timeval current_time;
   gettimeofday(&current_time, 0);
   
   struct timeval dt;
   timersub(&current_time, &w->last_update, &dt);
   float delta = dt.tv_sec+1e-6*dt.tv_usec;
-  if (! vehicleUpdate(&w->vehicle, w->translational_force, w->rotational_force, delta*w->time_scale)){
+  if (! vehicleUpdate(&w->vehicle, tf, rf, delta*w->time_scale)){
     vehicleReset(&w->vehicle);
   }
   w->last_update = current_time;

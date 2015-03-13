@@ -77,7 +77,8 @@ Image* loadImage(const char* filename) {
   printf("magic number: [%s]\n", magic_number);
 
   int maxval;
-  fgets(line, 1024, f);
+  if (!fgets(line, 1024, f))
+    return 0;
   sscanf(line, "%d\n", &maxval);
   
   PixelType type=MONO8;

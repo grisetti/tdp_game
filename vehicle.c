@@ -1,5 +1,6 @@
 #include "vehicle.h"
 #include <GL/gl.h>
+#include <math.h>
 
 void drawBox(GLfloat l, GLfloat w, GLfloat h)
 {
@@ -53,6 +54,17 @@ void drawBox(GLfloat l, GLfloat w, GLfloat h)
 }
 
 int vehicleUpdate(Vehicle* v, float tf, float rf, float dt){
+  if (tf > v->max_translational_force)
+    tf = v->max_translational_force;
+  if (tf < -v->max_translational_force)
+    tf = -v->max_translational_force;
+
+  if (rf > v->max_rotational_force)
+    rf = v->max_rotational_force;
+  if (rf < -v->max_rotational_force)
+    rf = -v->max_rotational_force;
+  
+
   // retrieve the position of the vehicle
   if(! getTransformOnSurface(v->camera_to_world, v->ground, v->x, v->y, 0, v->theta, 0)) {
     v->translational_velocity = 0;
@@ -76,8 +88,15 @@ int vehicleUpdate(Vehicle* v, float tf, float rf, float dt){
   if(! getTransformOnSurface(v->camera_to_world, v->ground, nx, ny, 0, v->theta, 0)){
     return 0;
   }
+
   // compute the accelerations
-  v->translational_velocity += (-9.8 * v->camera_to_world[2] + tf) * dt;
+  float global_tf=(-9.8 * v->camera_to_world[2] + tf);
+  if ( fabs(global_tf)<v->min_translational_force)
+    global_tf = 0;
+  v->translational_velocity += global_tf * dt;
+
+  if ( fabs(rf)<v->min_rotational_force)
+    rf = 0;
   v->rotational_velocity += rf * dt;
   v->translational_velocity *= v->translational_viscosity;
   v->rotational_velocity *= v->rotational_viscosity;
@@ -89,11 +108,17 @@ int vehicleUpdate(Vehicle* v, float tf, float rf, float dt){
 void vehicleInit(Vehicle* v, Surface* s){
   v->gl_texture = -1;
   v->ground = s;
+  v->max_rotational_force=0.5;
+  v->max_translational_force=10;
+  v->min_rotational_force=0.05;
+  v->min_translational_force=0.05;
   vehicleReset(v);
 }
 
 
 void vehicleReset(Vehicle* v){
+  v->rotational_force=0;
+  v->translational_force=0;
   v->x = v->ground->rows/2 * v->ground->row_scale;
   v->y = v->ground->cols/2 * v->ground->col_scale;
   v->theta = 0;
